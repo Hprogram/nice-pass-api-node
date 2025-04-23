@@ -71,9 +71,10 @@ app.all("/checkplus_success", async (req, res) => {
     const decryptedData = await verifyCallback(redisClient, {
       token_version_id,
       enc_data,
-      integrity_value,
-      req_no: enc_data.substring(0, 20) // enc_data의 처음 20자리가 req_no입니다
+      integrity_value
     });
+
+    console.log("리스폰 데이터:", decryptedData);
 
     const redirectUrl = ``;
     res.redirect(redirectUrl);
