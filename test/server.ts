@@ -71,7 +71,8 @@ app.all("/checkplus_success", async (req, res) => {
     const decryptedData = await verifyCallback(redisClient, {
       token_version_id,
       enc_data,
-      integrity_value
+      integrity_value,
+      req_no: req.query.req_no || req.body.req_no
     });
 
     console.log("리스폰 데이터:", decryptedData);

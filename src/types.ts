@@ -23,5 +23,5 @@ export interface TokenRequestResult {
     token_version_id: string;
     enc_data: string;
     integrity_value: string;
-    req_no?: string;
+    req_no: string;
   }
