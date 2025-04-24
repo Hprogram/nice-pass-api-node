@@ -12,6 +12,10 @@ export async function verifyCallback(redisClient: any, input: VerifyInput) {
   const decrypted = decrypt(enc_data, session.key, session.iv);
   const data = JSON.parse(decrypted);
 
+  if (data.utf8_name) {
+    data.name = decodeURIComponent(data.utf8_name);
+  }
+
   console.log("data: ", data);
 
   if (session.token_version_id !== token_version_id)
