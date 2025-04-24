@@ -38,8 +38,14 @@ app.get("/", (req, res) => {
 
 // 본인인증 시작 페이지
 app.get("/checkplus_main", async (req, res) => {
+
+  const callback = req.query.callback as string;
+  if (!callback) {
+    throw new Error('callback 파라미터가 누락되었습니다.');
+  }
+
   try {
-    const tokenData = await requestToken(redisClient, "audition:6");
+    const tokenData = await requestToken(redisClient, callback);
     console.log('Token Data:', tokenData);
     
     if (!tokenData.token_version_id || !tokenData.token_val) {
@@ -75,7 +81,8 @@ app.all("/checkplus_success", async (req, res) => {
 
     console.log("리스폰 데이터:", decryptedData);
 
-    const redirectUrl = `http://localhost:8888`;
+    const redirectUrl = `${decryptedData.receivedata}?name=${encodeURIComponent(decryptedData.name.toString())}&birthdate=${encodeURIComponent(decryptedData.birthdate.toString())}&gender=${encodeURIComponent(decryptedData.gender.toString())}&mobileco=${encodeURIComponent(decryptedData.mobileco.toString())}&mobileno=${encodeURIComponent(decryptedData.mobileno.toString())}&di=${encodeURIComponent(decryptedData.di.toString())}&ci=${encodeURIComponent(decryptedData.ci.toString())}`;
+
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error in checkplus_success:', error);
