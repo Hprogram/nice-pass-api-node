@@ -53,7 +53,7 @@ export async function requestToken(redisClient: any, receivedata: string): Promi
   const enc_data = encrypt(plain_data, key, iv);
   const integrity = createHmacHash(enc_data, hmac_key);
 
-  await saveSession(redisClient, req_no, { token_version_id, key, iv, hmac_key });
+  await saveSession(redisClient, token_version_id, { token_version_id, key, iv, hmac_key });
 
   return {
     req_no,

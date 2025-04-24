@@ -4,20 +4,15 @@ import { VerifyInput } from '../types';
 import { getNiceConfig } from '../config';
 
 export async function verifyCallback(redisClient: any, input: VerifyInput) {
-  const { token_version_id, enc_data, integrity_value, req_no } = input;
+  const { token_version_id, enc_data, integrity_value } = input;
 
-  const session = await getSession(redisClient, req_no);
+  const session = await getSession(redisClient, token_version_id);
   if (!session) throw new Error('세션 데이터가 존재하지 않습니다.');
   
   const decrypted = decrypt(enc_data, session.key, session.iv);
   const data = JSON.parse(decrypted);
 
   console.log("data: ", data);
-
-  // requestno 검증
-  if (req_no !== data.requestno) {
-    throw new Error('요청번호가 일치하지 않습니다. 올바른 경로로 접근하시기 바랍니다.');
-  }
 
   if (session.token_version_id !== token_version_id)
     throw new Error('토큰 버전 ID가 일치하지 않습니다.');

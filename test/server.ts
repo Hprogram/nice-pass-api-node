@@ -24,7 +24,7 @@ setNiceConfig({
   API_URL: '',
   PRODUCT_ID: '',
   RETURN_URL: '',
-  ACCESS_TOKEN: ''
+  ACCESS_TOKEN: '',
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -58,7 +58,10 @@ app.get("/checkplus_main", async (req, res) => {
 // 본인인증 성공 콜백
 app.all("/checkplus_success", async (req, res) => {
   try {
-    const { token_version_id, enc_data, integrity_value, req_no } = req.method === 'GET' ? req.query : req.body;
+    const { token_version_id, enc_data, integrity_value } = req.method === 'GET' ? req.query : req.body;
+    
+    console.log("req.body: ", req.body);
+    console.log("req.query: ", req.query);
     
     if (!token_version_id || !enc_data || !integrity_value) {
       throw new Error('필수 파라미터가 누락되었습니다.');
@@ -68,7 +71,6 @@ app.all("/checkplus_success", async (req, res) => {
       token_version_id,
       enc_data,
       integrity_value,
-      req_no
     });
 
     console.log("리스폰 데이터:", decryptedData);
