@@ -20,12 +20,12 @@ redisClient.connect();
 
 // NICE API 설정
 setNiceConfig({
-  CLIENT_ID: ``,
-  SECRET_KEY: ``,
-  API_URL: ``,
-  PRODUCT_ID: ``,
-  RETURN_URL: ``,
-  ACCESS_TOKEN: ``
+  CLIENT_ID:'',
+  SECRET_KEY:'',
+  API_URL:'',
+  PRODUCT_ID:'',
+  RETURN_URL:'',
+  ACCESS_TOKEN:'',
 });
 
 // 세션 설정
@@ -62,16 +62,21 @@ app.get("/checkplus_main", async (req, res) => {
 // 본인인증 성공 콜백
 app.all("/checkplus_success", async (req, res) => {
   try {
-    const { token_version_id, enc_data, integrity_value } = req.method === 'GET' ? req.query : req.body;
+
+    console.log("req.method: " + req.method);
+    console.log("req.query: " + req.query);
+    console.log("req.body: " + req.body);
+
+    const { token_version_id, enc_data, integrity } = req.method === 'GET' ? req.query : req.body;
     
-    if (!token_version_id || !enc_data || !integrity_value) {
+    if (!token_version_id || !enc_data || !integrity) {
       throw new Error('필수 파라미터가 누락되었습니다.');
     }
 
     const decryptedData = await verifyCallback(redisClient, {
       tokenVersionId: token_version_id,
       encData: enc_data,
-      integrityValue: integrity_value,
+      integrity: integrity,
       reqNo: enc_data.substring(0, 20) // enc_data의 처음 20자리가 req_no입니다
     });
 

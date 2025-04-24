@@ -14,7 +14,7 @@ const log = debug('nice-pass-api:verify-callback');
  * @throws {Error} 검증 실패 시 에러 발생
  */
 export async function verifyCallback(redisClient: any, input: VerifyInput) {
-  const { tokenVersionId, encData, integrityValue } = input;
+  const { tokenVersionId, encData, integrity: integrityValue } = input;
   const reqNo = encData.substring(0, 20); // encData의 처음 20자리가 reqNo
 
   const session = await getSession(redisClient, reqNo);

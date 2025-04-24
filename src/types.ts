@@ -22,6 +22,6 @@ export interface TokenRequestResult {
   export interface VerifyInput {
     tokenVersionId: string;
     encData: string;
-    integrityValue: string;
+    integrity: string;
     reqNo?: string;
   }
