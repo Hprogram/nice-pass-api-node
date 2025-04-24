@@ -25,19 +25,18 @@ redisClient.connect();
 
 // NICE API 설정
 setNiceConfig({
-  CLIENT_ID: '',
-  SECRET_KEY: '',
-  API_URL: '',
-  PRODUCT_ID: '',
-  RETURN_URL: '',
-  ACCESS_TOKEN: ''
+  CLIENT_ID:  '',
+  SECRET_KEY:  '',
+  API_URL:  '',
+  PRODUCT_ID:  '',
+  RETURN_URL:  '',
+  ACCESS_TOKEN:  ''
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ejs 템플릿 사용시 주석 해제
-// app.set('view engine', 'ejs');
-// app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // 메인 요청 확인용
 app.get("/", (req, res) => {
