@@ -24,14 +24,16 @@ setNiceConfig({
   API_URL: '',
   PRODUCT_ID: '',
   RETURN_URL: '',
-  ACCESS_TOKEN: '',
+  ACCESS_TOKEN: ''
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 
+// ejs 템플릿 사용시 주석 해제
+// app.set('view engine', 'ejs');
+// app.set('views', path.join(__dirname, 'views'));
 
+// 메인 요청 확인용
 app.get("/", (req, res) => {
   res.send("success logic");
 });
@@ -39,9 +41,13 @@ app.get("/", (req, res) => {
 // 본인인증 시작 페이지
 app.get("/checkplus_main", async (req, res) => {
 
-  const callback = req.query.callback as string;
-  if (!callback) {
-    throw new Error('callback 파라미터가 누락되었습니다.');
+  const callback = req.query.callback as string | undefined;
+    
+  // callback이 undefined이거나 빈 문자열인 경우
+  if (!callback || callback.trim() === '') {
+    return res.status(400).render('error', {
+      message: '콜백 URL이 지정되지 않았습니다.'
+    });
   }
 
   try {
@@ -52,7 +58,14 @@ app.get("/checkplus_main", async (req, res) => {
       throw new Error('토큰 데이터가 누락되었습니다.');
     }
     
-    res.render('checkplus_main', tokenData);
+    // 폼 렌더링 대신 직접 리다이렉트
+    const redirectUrl = new URL('https://nice.checkplus.co.kr/CheckPlusSafeModel/service.cb');
+    redirectUrl.searchParams.append('m', 'service');
+    redirectUrl.searchParams.append('token_version_id', tokenData.token_version_id);
+    redirectUrl.searchParams.append('enc_data', tokenData.enc_data);
+    redirectUrl.searchParams.append('integrity_value', tokenData.integrity);
+    
+    res.redirect(redirectUrl.toString());
   } catch (error) {
     console.error('Error in checkplus_main:', error);
     res.status(500).render('error', { 

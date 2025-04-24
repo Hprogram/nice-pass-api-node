@@ -1,14 +1,15 @@
+<!-- 필요시  사용 가능한 템플릿 -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>본인인증 테스트</title>
+    <title>본인인증</title>
     <style type="text/css">
         td { border: 1px solid #ccc; padding: 8px; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <table>
+    <!-- <table>
         <tbody>
             <tr>
                 <td style="width:200px">req_no</td>
@@ -55,14 +56,19 @@
                 <td><%=integrity %></td>
             </tr>
         </tbody>
-    </table>
+    </table> -->
 
     <form name="form_chk" method="post" action="https://nice.checkplus.co.kr/CheckPlusSafeModel/service.cb">
         <input type="hidden" name="m" value="service"/>
         <input type="hidden" name="token_version_id" value="<%=token_version_id%>"/>
         <input type="hidden" name="enc_data" value="<%=enc_data%>"/>
         <input type="hidden" name="integrity_value" value="<%=integrity%>"/>
-        <button type="submit" style="padding: 10px 20px; font-size: 16px;">CheckPlus 안심본인인증 Click</button>
+        <button type="submit" style="padding: 10px 20px; font-size: 16px; display: none;">CheckPlus 안심본인인증 Click</button>
     </form>
+    <script>
+        window.onload = function() {
+            document.forms['form_chk'].submit();
+        }
+    </script>
 </body>
 </html> 
