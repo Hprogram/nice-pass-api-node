@@ -12,7 +12,7 @@ export async function requestToken(redisClient: any, receivedata: string): Promi
   const timestamp = Math.floor(Date.now() / 1000);
   const base64_Auth = Buffer.from(`${ACCESS_TOKEN}:${timestamp}:${CLIENT_ID}`).toString('base64');
 
-  const tokenRes = await axios.post(`${API_URL}/digital/niceid/api/v1.0/common/crypto/token`, {
+  const tokenRes = await axios.post(`${API_URL}`, {
     dataHeader: { CNTY_CD: 'ko' },
     dataBody: {
       req_dtim,

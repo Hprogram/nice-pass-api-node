@@ -1,5 +1,4 @@
 import express from 'express';
-import session from 'express-session';
 import bodyParser from 'body-parser';
 import { requestToken } from '../src/handlers/requestToken';
 import { createClient } from 'redis';
@@ -20,25 +19,22 @@ redisClient.connect();
 
 // NICE API 설정
 setNiceConfig({
-  CLIENT_ID: "",
-  SECRET_KEY: "",
-  API_URL: "",
-  PRODUCT_ID: "",
-  RETURN_URL: "",
-  ACCESS_TOKEN: ""
+  CLIENT_ID: '',
+  SECRET_KEY: '',
+  API_URL: '',
+  PRODUCT_ID: '',
+  RETURN_URL: '',
+  ACCESS_TOKEN: ''
 });
-
-// 세션 설정
-app.use(session({
-  secret: 'niceapi',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+
+app.get("/", (req, res) => {
+  res.send("success logic");
+});
 
 // 본인인증 시작 페이지
 app.get("/checkplus_main", async (req, res) => {
@@ -77,7 +73,7 @@ app.all("/checkplus_success", async (req, res) => {
 
     console.log("리스폰 데이터:", decryptedData);
 
-    const redirectUrl = ``;
+    const redirectUrl = `http://localhost:8888`;
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error in checkplus_success:', error);
