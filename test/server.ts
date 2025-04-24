@@ -1,10 +1,11 @@
 import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
-import { requestToken } from '../src/handlers/requestToken';
+import { requestToken } from '../src/handlers/request-token';
 import { createClient } from 'redis';
 import { setNiceConfig } from '../src/config';
 import path from 'path';
+import { verifyCallback } from '../src/handlers/verify-callback';
 
 const app = express();
 const port = 8888;
@@ -19,12 +20,12 @@ redisClient.connect();
 
 // NICE API 설정
 setNiceConfig({
-  CLIENT_ID: "",
-  SECRET_KEY: "",
-  API_URL: "",
-  PRODUCT_ID: "",
-  RETURN_URL: "",
-  ACCESS_TOKEN: ""
+  CLIENT_ID: ``,
+  SECRET_KEY: ``,
+  API_URL: ``,
+  PRODUCT_ID: ``,
+  RETURN_URL: ``,
+  ACCESS_TOKEN: ``
 });
 
 // 세션 설정
@@ -45,7 +46,7 @@ app.get("/checkplus_main", async (req, res) => {
     const tokenData = await requestToken(redisClient, "audition:6");
     console.log('Token Data:', tokenData);
     
-    if (!tokenData.token_version_id || !tokenData.token_val) {
+    if (!tokenData.tokenVersionId || !tokenData.tokenVal) {
       throw new Error('토큰 데이터가 누락되었습니다.');
     }
     
@@ -60,14 +61,28 @@ app.get("/checkplus_main", async (req, res) => {
 
 // 본인인증 성공 콜백
 app.all("/checkplus_success", async (req, res) => {
-  const { token_version_id, enc_data, integrity_value, name, birthdate, gender, mobileco, mobileno, di, ci } = req.method === 'GET' ? req.query : req.body;
-  
-  if (!name || !birthdate || !gender || !mobileco || !mobileno || !di || !ci) {
-    return res.status(400).send('필수 파라미터가 누락되었습니다.');
-  }
+  try {
+    const { token_version_id, enc_data, integrity_value } = req.method === 'GET' ? req.query : req.body;
+    
+    if (!token_version_id || !enc_data || !integrity_value) {
+      throw new Error('필수 파라미터가 누락되었습니다.');
+    }
 
-  const redirectUrl = ``;
-  res.redirect(redirectUrl);
+    const decryptedData = await verifyCallback(redisClient, {
+      tokenVersionId: token_version_id,
+      encData: enc_data,
+      integrityValue: integrity_value,
+      reqNo: enc_data.substring(0, 20) // enc_data의 처음 20자리가 req_no입니다
+    });
+
+    const redirectUrl = ``;
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Error in checkplus_success:', error);
+    res.status(500).render('error', { 
+      message: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
+    });
+  }
 });
 
 app.listen(port, () => {

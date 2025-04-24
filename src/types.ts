@@ -1,27 +1,27 @@
 export interface TokenRequestResult {
-    req_no: string;
-    req_dtim: string;
-    token_version_id: string;
-    enc_data: string;
+    reqNo: string;
+    reqDtim: string;
+    tokenVersionId: string;
+    encData: string;
     integrity: string;
-    token_val: string;
+    tokenVal: string;
     resultVal: string;
     key: string;
     iv: string;
-    hmac_key: string;
+    hmacKey: string;
     plain: string;
   }
   
   export interface TokenSessionData {
-    token_version_id: string;
+    tokenVersionId: string;
     key: string;
     iv: string;
-    hmac_key: string;
+    hmacKey: string;
   }
   
   export interface VerifyInput {
-    token_version_id: string;
-    enc_data: string;
-    integrity_value: string;
-    req_no: string;
+    tokenVersionId: string;
+    encData: string;
+    integrityValue: string;
+    reqNo?: string;
   }
