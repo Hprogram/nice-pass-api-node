@@ -5,16 +5,22 @@ import { createClient } from 'redis';
 import { setNiceConfig } from '../src/config';
 import path from 'path';
 import { verifyCallback } from '../src/handlers/verifyCallback';
+import debug from 'debug';
+
+// 디버그 네임스페이스 설정
+const debugServer = debug('nice-auth:server');
+const debugRedis = debug('nice-auth:redis');
+const debugAuth = debug('nice-auth:auth');
 
 const app = express();
 const port = 8888;
 
 // Redis 클라이언트 설정
 const redisClient = createClient({
-  url: ''
+  url: '',
 });
 
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+redisClient.on('error', (err) => debugRedis('Redis Client Error: %O', err));
 redisClient.connect();
 
 // NICE API 설정
@@ -40,11 +46,12 @@ app.get("/", (req, res) => {
 
 // 본인인증 시작 페이지
 app.get("/checkplus_main", async (req, res) => {
-
   const callback = req.query.callback as string | undefined;
+    
     
   // callback이 undefined이거나 빈 문자열인 경우
   if (!callback || callback.trim() === '') {
+    debugAuth('Invalid callback URL provided');
     return res.status(400).render('error', {
       message: '콜백 URL이 지정되지 않았습니다.'
     });
@@ -52,9 +59,10 @@ app.get("/checkplus_main", async (req, res) => {
 
   try {
     const tokenData = await requestToken(redisClient, callback);
-    console.log('Token Data:', tokenData);
+
     
     if (!tokenData.token_version_id || !tokenData.token_val) {
+      debugAuth('Missing token data fields');
       throw new Error('토큰 데이터가 누락되었습니다.');
     }
     
@@ -67,7 +75,7 @@ app.get("/checkplus_main", async (req, res) => {
     
     res.redirect(redirectUrl.toString());
   } catch (error) {
-    console.error('Error in checkplus_main:', error);
+    debugAuth('Error in authentication process: %O', error);
     res.status(500).render('error', { 
       message: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     });
@@ -79,10 +87,10 @@ app.all("/checkplus_success", async (req, res) => {
   try {
     const { token_version_id, enc_data, integrity_value } = req.method === 'GET' ? req.query : req.body;
     
-    console.log("req.body: ", req.body);
-    console.log("req.query: ", req.query);
+
     
     if (!token_version_id || !enc_data || !integrity_value) {
+      debugAuth('Missing required parameters');
       throw new Error('필수 파라미터가 누락되었습니다.');
     }
 
@@ -92,13 +100,11 @@ app.all("/checkplus_success", async (req, res) => {
       integrity_value,
     });
 
-    console.log("리스폰 데이터:", decryptedData);
-
-    const redirectUrl = `${decryptedData.receivedata}?name=${encodeURIComponent(decryptedData.name.toString())}&birthdate=${encodeURIComponent(decryptedData.birthdate.toString())}&gender=${encodeURIComponent(decryptedData.gender.toString())}&mobileco=${encodeURIComponent(decryptedData.mobileco.toString())}&mobileno=${encodeURIComponent(decryptedData.mobileno.toString())}&di=${encodeURIComponent(decryptedData.di.toString())}&ci=${encodeURIComponent(decryptedData.ci.toString())}`;
+    const redirectUrl = `${decryptedData.receivedata}?name=${decryptedData.name}&birthdate=${encodeURIComponent(decryptedData.birthdate)}&gender=${encodeURIComponent(decryptedData.gender)}&mobileco=${encodeURIComponent(decryptedData.mobileco)}&mobileno=${encodeURIComponent(decryptedData.mobileno)}&di=${encodeURIComponent(decryptedData.di)}&ci=${encodeURIComponent(decryptedData.ci)}`;
 
     res.redirect(redirectUrl);
   } catch (error) {
-    console.error('Error in checkplus_success:', error);
+    debugAuth('Error in callback processing: %O', error);
     res.status(500).render('error', { 
       message: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
     });
@@ -106,5 +112,5 @@ app.all("/checkplus_success", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`서버가 http://localhost:${port} 에서 실행 중입니다.`);
+  debugServer('Server is running on http://localhost:%d', port);
 }); 

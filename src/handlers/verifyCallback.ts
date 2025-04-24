@@ -16,8 +16,6 @@ export async function verifyCallback(redisClient: any, input: VerifyInput) {
     data.name = decodeURIComponent(data.utf8_name);
   }
 
-  console.log("data: ", data);
-
   if (session.token_version_id !== token_version_id)
     throw new Error('토큰 버전 ID가 일치하지 않습니다.');
 
